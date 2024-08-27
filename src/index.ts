@@ -17,11 +17,23 @@ run(async (context: HandlerContext) => {
     // Call the Brian API endpoint with the brianPayload
     try {
       const response = await axios.post(brianAgentEndpoint, brianPayload, { headers: brianHeaders });
+      const data = response.data;
+
       console.log("Status: ", response.status);
-      console.log("Data: ", response.data);
-      await context.send(response.data.result.answer);
+      console.log("Data: ", data);
+
+      // If the answer is an array, Brian found a possible transaction
+      if (Array.isArray(data.result)) {
+        await context.send(data.result[0].data.description);
+      }
+
+      // If the answer is not an array, Brian keeps the conversation going
+      else {
+        await context.send(data.result.answer);
+      }
     } catch (error: any) {
       console.log("Status: ", error.response.status);
+      console.log("Data: ", error.response.data);
       await context.send(error.response.data.error);
     }
 

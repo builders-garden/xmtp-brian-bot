@@ -80,7 +80,6 @@ run(async (context: HandlerContext) => {
             transactions: transactions,
             transactionsLength: transactionsLength,
           };
-          console.log("Frame data: ", frameData);
 
           // Save the conversation in Redis to be used within the frame 
           await redisClient.set(conversationId, JSON.stringify(frameData));

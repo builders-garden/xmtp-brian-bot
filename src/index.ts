@@ -3,10 +3,17 @@ import { generateBrianPayload } from "./lib/utils.js";
 import { v4 as uuidv4 } from "uuid";
 import { getRedisClient } from "./lib/redis.js";
 import axios from "axios";
-import { BOT_COMMAND_ACTIONS_REPLY, BOT_COMMAND_HELP_REPLY, BOT_COMMAND_IDLE_REPLY, BOT_COMMAND_RESET_REPLY, BOT_COMMAND_START_REPLY, brianAgentEndpoint } from "./lib/const.js";
+import {
+  BOT_COMMAND_ACTIONS_REPLY,
+  BOT_COMMAND_HELP_REPLY,
+  BOT_COMMAND_IDLE_REPLY,
+  BOT_COMMAND_RESET_REPLY,
+  BOT_COMMAND_START_REPLY,
+  brianAgentEndpoint,
+} from "./lib/const.js";
 
 // Define the CurrentStep type
-type CurrentStep = 'idle' | 'chatting';
+type CurrentStep = "idle" | "chatting";
 
 // Create the in-memory cache
 const inMemoryCacheStep = new Map<string, CurrentStep>();
@@ -20,20 +27,17 @@ run(async (context: HandlerContext) => {
     const userMessage = content.content.trim().toLowerCase();
     if (userMessage === "/actions") {
       await context.send(BOT_COMMAND_ACTIONS_REPLY);
-    } 
-    else if (userMessage === "/help") {
+    } else if (userMessage === "/help") {
       await context.send(BOT_COMMAND_HELP_REPLY);
-    } 
-    else if (userMessage === "/start") {
-      inMemoryCacheStep.set(sender.address, 'chatting');
+    } else if (userMessage === "/start") {
+      inMemoryCacheStep.set(sender.address, "chatting");
       await context.send(BOT_COMMAND_START_REPLY);
-    } 
-    else if (userMessage === "/reset") {
-      inMemoryCacheStep.set(sender.address, 'idle');
+    } else if (userMessage === "/reset") {
+      inMemoryCacheStep.set(sender.address, "idle");
       await context.send(BOT_COMMAND_RESET_REPLY);
     }
     // If the user is in the chatting step, generate a new conversation with Brian API
-    else if (inMemoryCacheStep.get(sender.address) === 'chatting') {
+    else if (inMemoryCacheStep.get(sender.address) === "chatting") {
       console.log("Starting conversation with Brian API");
       const brianPayload = await generateBrianPayload(context, 15);
       const brianHeaders = {
@@ -42,11 +46,14 @@ run(async (context: HandlerContext) => {
       };
 
       try {
-        const response = await axios.post(brianAgentEndpoint, brianPayload, { headers: brianHeaders });
+        const response = await axios.post(brianAgentEndpoint, brianPayload, {
+          headers: brianHeaders,
+        });
         const data = response.data;
 
         console.log("Status: ", response.status);
-        console.log("Data: ", data);
+        console.log("Response: ", data);
+        console.log("Result: ", data.result[0].data);
 
         if (Array.isArray(data.result)) {
           // get transactions from Brian result
@@ -81,7 +88,7 @@ run(async (context: HandlerContext) => {
             transactionsLength: transactionsLength,
           };
 
-          // Save the conversation in Redis to be used within the frame 
+          // Save the conversation in Redis to be used within the frame
           await redisClient.set(conversationId, JSON.stringify(frameData));
           await context.send(
             `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`

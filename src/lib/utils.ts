@@ -1,5 +1,9 @@
 import { HandlerContext } from "@xmtp/message-kit";
-import { BrianContextMessageType, BrianPayloadType, SortDirection } from "./types.js";
+import {
+  BrianContextMessageType,
+  BrianPayloadType,
+  SortDirection,
+} from "./types.js";
 
 /**
  * Generates a valid Brian payload
@@ -9,7 +13,10 @@ import { BrianContextMessageType, BrianPayloadType, SortDirection } from "./type
  * @returns The valid BrianPayloadType object
  **/
 
-export const generateBrianPayload = async (context: HandlerContext, limit: number): Promise<BrianPayloadType> => {
+export const generateBrianPayload = async (
+  context: HandlerContext,
+  limit: number
+): Promise<BrianPayloadType> => {
   if (process.env.BRIAN_CONTEX_MODE === "standard") {
     // Get the last [limit] + 20 messages from the conversation
     const messages = await context.conversation.messages({
@@ -18,14 +25,19 @@ export const generateBrianPayload = async (context: HandlerContext, limit: numbe
     });
 
     // Filter the first 16 elements that are of type string
-    const filteredMessages = messages.filter((message) => typeof message.content === "string").slice(0, 16);
+    const filteredMessages = messages
+      .filter((message) => typeof message.content === "string")
+      .slice(0, 16);
 
     // Create the brianPayload object
     const brianPayload: BrianPayloadType = {
       prompt: filteredMessages.shift()?.content, // Gets the last message from the user and reduces the array
       address: context.message.sender.address,
       messages: filteredMessages.map((message) => ({
-        sender: message.senderAddress === context.message.sender.address ? "user" : "brian",
+        sender:
+          message.senderAddress === context.message.sender.address
+            ? "user"
+            : "brian",
         content: message.content,
       })),
     };
@@ -40,24 +52,35 @@ export const generateBrianPayload = async (context: HandlerContext, limit: numbe
   });
 
   // Filter messages after the last "/reset" command
-  const lastResetIndex = messages.findIndex(message => 
-    typeof message.content === "string" && message.content.trim().toLowerCase() === "/reset"
+  const lastResetIndex = messages.findIndex(
+    (message) =>
+      typeof message.content === "string" &&
+      message.content.trim().toLowerCase() === "/reset"
   );
-  const relevantMessages = lastResetIndex !== -1 ? messages.slice(0, lastResetIndex) : messages;
+  const relevantMessages =
+    lastResetIndex !== -1 ? messages.slice(0, lastResetIndex) : messages;
 
   const shouldRemoveMessage = (content: string): boolean =>
-    sensitivePatterns.some(pattern => content.toLowerCase().includes(pattern.toLowerCase()));
-  
+    sensitivePatterns.some((pattern) =>
+      content.toLowerCase().includes(pattern.toLowerCase())
+    );
+
   // Filter and process messages
   const filteredMessages: BrianContextMessageType[] = relevantMessages
-    .filter(message => typeof message.content === "string" && !shouldRemoveMessage(message.content))
-    .map(message => ({
-      sender: message.senderAddress === context.message.sender.address ? "user" : "brian",
+    .filter(
+      (message) =>
+        typeof message.content === "string" &&
+        !shouldRemoveMessage(message.content)
+    )
+    .map((message) => ({
+      sender:
+        message.senderAddress === context.message.sender.address
+          ? "user"
+          : "brian",
       content: message.content as string,
     }));
 
   console.log("Filtered messages: ", filteredMessages);
-
 
   // Create the brianPayload object
   const brianPayload: BrianPayloadType = {

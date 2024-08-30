@@ -10,6 +10,7 @@ import {
   BOT_COMMAND_RESET_REPLY,
   BOT_COMMAND_START_REPLY,
   brianAgentEndpoint,
+  brianHeaders,
 } from "./lib/const.js";
 import { Request } from "./lib/types.js";
 
@@ -41,10 +42,6 @@ run(async (context: HandlerContext) => {
     else if (inMemoryCacheStep.get(sender.address) === "chatting") {
       console.log("Starting conversation with Brian API");
       const brianPayload = await generateBrianPayload(context, 15);
-      const brianHeaders = {
-        "x-brian-api-key": process.env.BRIAN_API_KEY,
-        "Content-Type": "application/json",
-      };
 
       try {
         const response = await axios.post(brianAgentEndpoint, brianPayload, {

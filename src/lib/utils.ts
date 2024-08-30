@@ -20,7 +20,7 @@ export const generateBrianPayload = async (
   if (process.env.BRIAN_CONTEX_MODE === "standard") {
     // Get the last [limit] + 20 messages from the conversation
     const messages = await context.conversation.messages({
-      limit: limit + 20,
+      limit: 5,
       direction: SortDirection.SORT_DIRECTION_DESCENDING,
     });
 
@@ -93,9 +93,10 @@ export const generateBrianPayload = async (
 };
 
 const sensitivePatterns = [
+  /*
   "the action you asked for is not recognized",
   "incorrect intent recognition",
-  "hey there, i'm brian",
+  "hey there, i'm brian",*/
   "great! you can start",
   "/start",
   "/help",

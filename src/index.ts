@@ -74,12 +74,18 @@ run(async (context: HandlerContext) => {
           let transactions: any[] = [];
           for (let i = 0; i < transactionsLength; i++) {
             transactions.push({
+              chainId: data.result[0].data.steps[i].chainId, //spostare a livello di richiesta
               from: data.result[0].data.steps[i].from,
               to: data.result[0].data.steps[i].to,
               data: data.result[0].data.steps[i].data,
               value: data.result[0].data.steps[i].value,
             });
           }
+
+          // Array di richieste
+          // Per ogni richiesta, creare un array
+          // Passare length sia delle richieste che delle risposte
+
           // Data to store for the Frame transaction
           const frameData = {
             address: sender.address,

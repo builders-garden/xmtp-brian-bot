@@ -65,28 +65,30 @@ run(async (context: HandlerContext) => {
           for (let i = 0; i < requestsLength; i++) {
             stepsLength.push(data.result[i].data.steps?.length || 0);
           }
-          // require length of transactions > 0stepsLength
+          // require length of transactions > stepsLength
           if (!stepsLength) {
             throw new Error("No transactions found");
           }
           //Define the requests array
           const requests: Request[] = [];
           for (let i = 0; i < requestsLength; i++) {
+            const resultData = data.result[i].data;
             const request: Request = {
-              description: data.result[i].data.description,
-              chainId: data.result[i].data.steps[0].chainId,
-              tokenIn: data.result[i].data.fromToken.address,
-              steps: []
+              description: resultData.description,
+              chainId: resultData.steps[0].chainId,
+              tokenIn: resultData.fromToken.address,
+              steps: [],
+              stepsLength: stepsLength[i],
             };
 
             for (let j = 0; j < (stepsLength[i] || 0); j++) {
+              const step = resultData.steps[j];
               request.steps.push({
-                from: data.result[i].data.steps[j].from,
-                to: data.result[i].data.steps[j].to,
-                data: data.result[i].data.steps[j].data,
-                value: data.result[i].data.steps[j].value
+                from: step.from,
+                to: step.to,
+                data: step.data,
+                value: step.value,
               });
-
             }
             requests.push(request);
           }
@@ -96,23 +98,23 @@ run(async (context: HandlerContext) => {
             const description = requests[i].description;
             await context.send(description);
           }
-            const conversationId = uuidv4();
-            console.log("Conversation ID: ", conversationId);
-            const redisClient = getRedisClient();
+          const conversationId = uuidv4();
+          console.log("Conversation ID: ", conversationId);
+          const redisClient = getRedisClient();
 
-            // Data to store for the Frame transaction
-            const frameData = {
-              address: sender.address,
-              requests: requests
-            };
+          // Data to store for the Frame transaction
+          const frameData = {
+            address: sender.address,
+            requests: requests,
+            requestsLength: requestsLength,
+          };
 
-            // Save the conversation in Redis to be used within the frame
-            await redisClient.set(conversationId, JSON.stringify(frameData));
-            await context.send(
-              `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
-            );
-        
-        } 
+          // Save the conversation in Redis to be used within the frame
+          await redisClient.set(conversationId, JSON.stringify(frameData));
+          await context.send(
+            `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
+          );
+        }
         //read request
         else if (data.result[0].type === "read") {
           console.log("Read transaction found");

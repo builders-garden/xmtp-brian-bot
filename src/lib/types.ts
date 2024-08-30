@@ -24,4 +24,5 @@ export type Request = {
     data: string;
     value: string;
   }[];
+  stepsLength: number;
 };

@@ -11,6 +11,7 @@ import {
   BOT_COMMAND_START_REPLY,
   brianAgentEndpoint,
 } from "./lib/const.js";
+import { Request } from "./lib/types.js";
 
 // Define the CurrentStep type
 type CurrentStep = "idle" | "chatting";
@@ -52,53 +53,60 @@ run(async (context: HandlerContext) => {
         const data = response.data;
 
         console.log("Status: ", response.status);
-        console.log("Response: ", data);
-        console.log("Result: ", data.result[0].data);
 
         if (Array.isArray(data.result)) {
           // get transactions from Brian result
-          const transactionsLength = data.result[0].data.steps?.length;
-          console.log("Transactions length: ", transactionsLength);
-          // require length of transactions > 0
-          if (!transactionsLength) {
+          const requestsLength = data.result.length;
+          let stepsLength: number[] = [];
+          for (let i = 0; i < requestsLength; i++) {
+            stepsLength.push(data.result[i].data.steps?.length || 0);
+          }
+          // require length of transactions > 0stepsLength
+          if (!stepsLength) {
             throw new Error("No transactions found");
           }
-          // send description to user
-          const description = data.result[0].data.description;
-          await context.send(description);
-          const conversationId = uuidv4();
-          console.log("Conversation ID: ", conversationId);
-          const redisClient = getRedisClient();
 
-          // Transactions object array
-          let transactions: any[] = [];
-          for (let i = 0; i < transactionsLength; i++) {
-            transactions.push({
-              chainId: data.result[0].data.steps[i].chainId, //spostare a livello di richiesta
-              from: data.result[0].data.steps[i].from,
-              to: data.result[0].data.steps[i].to,
-              data: data.result[0].data.steps[i].data,
-              value: data.result[0].data.steps[i].value,
-            });
+          //Define the requests array
+          const requests: Request[] = [];
+          for (let i = 0; i < requestsLength; i++) {
+            const request: Request = {
+              description: data.result[i].data.description,
+              chainId: data.result[i].data.chainId,
+              tokenIn: data.result[i].data.tokenIn,
+              steps: []
+            };
+            for (let j = 0; j < (stepsLength[i] || 0); j++) {
+              request.steps.push({
+                from: data.result[i].data.steps[j].from,
+                to: data.result[i].data.steps[j].to,
+                data: data.result[i].data.steps[j].data,
+                value: data.result[i].data.steps[j].value
+              });
+            }
+            requests.push(request);
           }
 
-          // Array di richieste
-          // Per ogni richiesta, creare un array
-          // Passare length sia delle richieste che delle risposte
+          // Send description for each request to user
+          for (let i = 0; i < requests.length; i++) {
+            const description = requests[i].description;
+            await context.send(description);
+          }
+            const conversationId = uuidv4();
+            console.log("Conversation ID: ", conversationId);
+            const redisClient = getRedisClient();
 
-          // Data to store for the Frame transaction
-          const frameData = {
-            address: sender.address,
-            description: description,
-            transactions: transactions,
-            transactionsLength: transactionsLength,
-          };
+            // Data to store for the Frame transaction
+            const frameData = {
+              address: sender.address,
+              requests: requests
+            };
 
-          // Save the conversation in Redis to be used within the frame
-          await redisClient.set(conversationId, JSON.stringify(frameData));
-          await context.send(
-            `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
-          );
+            // Save the conversation in Redis to be used within the frame
+            await redisClient.set(conversationId, JSON.stringify(frameData));
+            await context.send(
+              `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
+            );
+        
         } else {
           await context.send(data.result.answer);
         }

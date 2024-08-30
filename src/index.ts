@@ -51,10 +51,14 @@ run(async (context: HandlerContext) => {
           headers: brianHeaders,
         });
         const data = response.data;
-
-        console.log("Status: ", response.status);
-
-        if (Array.isArray(data.result)) {
+        console.log("Data: ", data);
+        //Ask request
+        if (data.result && data.result.answer) {
+          console.log("Answer found");
+          await context.send(data.result.answer);
+        }
+        //Tx request
+        if (data.result[0].type === "write") {
           // get transactions from Brian result
           const requestsLength = data.result.length;
           let stepsLength: number[] = [];
@@ -65,16 +69,16 @@ run(async (context: HandlerContext) => {
           if (!stepsLength) {
             throw new Error("No transactions found");
           }
-
           //Define the requests array
           const requests: Request[] = [];
           for (let i = 0; i < requestsLength; i++) {
             const request: Request = {
               description: data.result[i].data.description,
               chainId: data.result[i].data.steps[0].chainId,
-              tokenIn: data.result[i].fromToken.address,
+              tokenIn: data.result[i].data.fromToken.address,
               steps: []
             };
+
             for (let j = 0; j < (stepsLength[i] || 0); j++) {
               request.steps.push({
                 from: data.result[i].data.steps[j].from,
@@ -82,6 +86,7 @@ run(async (context: HandlerContext) => {
                 data: data.result[i].data.steps[j].data,
                 value: data.result[i].data.steps[j].value
               });
+
             }
             requests.push(request);
           }
@@ -107,8 +112,11 @@ run(async (context: HandlerContext) => {
               `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
             );
         
-        } else {
-          await context.send(data.result.answer);
+        } 
+        //read request
+        else if (data.result[0].type === "read") {
+          console.log("Read transaction found");
+          await context.send(data.result[0].data.description);
         }
       } catch (error: any) {
         console.log("Status: ", error.response.status);

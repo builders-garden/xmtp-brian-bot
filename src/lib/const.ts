@@ -5,6 +5,11 @@ export const brianAgentEndpoint =
 
 export const brianAgentEndpoint = "http://localhost:8080/api/v0/agent";
 
+export const brianHeaders = {
+  "x-brian-api-key": process.env.BRIAN_API_KEY,
+  "Content-Type": "application/json",
+};
+
 // Bot commands
 export const BOT_COMMAND_ACTIONS_REPLY =
   "Hey there, I'm Brian Agent. Available commands:\n/start - Start chatting with Brian API\n/actions - Show this list of commands";

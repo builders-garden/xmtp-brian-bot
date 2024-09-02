@@ -73,32 +73,36 @@ export const generateBrianPayload = async (
         !shouldRemoveMessage(message.content)
     )
     .map((message) => ({
-      sender:
-        message.senderAddress === context.message.sender.address
-          ? "user"
-          : "brian",
+      sender: message.senderAddress === context.message.sender.address
+        ? "user" as const
+        : "brian" as const,
       content: message.content as string,
-    }));
+    }))
+    .slice(0, 10); // Take only the last 10 messages
 
-  console.log("Filtered messages: ", filteredMessages);
 
   // Create the brianPayload object
   const brianPayload: BrianPayloadType = {
-    prompt: filteredMessages.pop()?.content || "", // Gets the last message from the user
+    prompt: filteredMessages[0]?.content || "", // Gets the first (most recent) message from the user
     address: context.message.sender.address,
-    messages: filteredMessages,
+    messages: filteredMessages.slice(1), // Include all messages except the first one
   };
+  console.log("Brian payload: ", brianPayload);
 
   return brianPayload;
 };
 
+// List of patterns to filter out from the conversation to polish it
 const sensitivePatterns = [
-  /*
+  "Hello! I'm Brian Agent",
+  "Hi! I'm Brian Agent",
   "the action you asked for is not recognized",
   "incorrect intent recognition",
-  "hey there, i'm brian",*/
-  "great! you can start",
+  "welcome! you can now start chatting with brian agent",
+  "Resources",
+  "https://",
   "/start",
   "/help",
   "/reset",
+  "/actions"
 ];

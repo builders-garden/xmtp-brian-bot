@@ -20,7 +20,7 @@ export const BOT_COMMAND_HELP_REPLY =
 export const BOT_COMMAND_START_REPLY =
   "Welcome! You can now start chatting with Brian Agent. Type /actions to see the available actions.";
 export const BOT_COMMAND_IDLE_REPLY =
-"Hello! I'm Brian Agent. Here are the available commands:\n/start - Begin a conversation with Brian Agent\n/actions - Display the list of available actions\n/reset - Reset the conversation with Brian Agent\n/help - Show this list of commands";
+  "Hello! I'm Brian Agent. Here are the available commands:\n/start - Begin a conversation with Brian Agent\n/actions - Display the list of available actions\n/reset - Reset the conversation with Brian Agent\n/help - Show this list of commands";
 
 
 

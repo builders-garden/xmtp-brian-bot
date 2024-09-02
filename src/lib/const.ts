@@ -12,12 +12,18 @@ export const brianHeaders = {
 
 // Bot commands
 export const BOT_COMMAND_ACTIONS_REPLY =
-  "Hey there, I'm Brian Agent. Available commands:\n/start - Start chatting with Brian API\n/actions - Show this list of commands";
+  "Hello! I'm Brian Agent. You can perform the following actions:\nask - Ask web3-related questions\nswap - Swap tokens\nbridge - Bridge assets across chains\ncrosschain - Perform cross-chain swaps\ndeposit - Deposit funds into DeFi protocols\nwithdraw - Withdraw from DeFi protocols\nens - Renew or register ENS domains\nLearn more at [https://docs.brianknows.org/brian-api/apis].";
 export const BOT_COMMAND_RESET_REPLY =
-  "Conversation reset. Type /start to start a new conversation with Brian Agent.";
+  "Conversation reset. Type /start to begin a new chat with Brian Agent.";
 export const BOT_COMMAND_HELP_REPLY =
-  "Hey there, I'm Brian Agent. Available commands:\n/start - Start chatting with Brian API\n/actions - Show this list of commands \n/reset - Reset the conversation with Brian Agent \n/help - Show this list of commands";
+  "Hi! I'm Brian Agent. Here are the available commands:\n/start - Begin a conversation with Brian Agent\n/actions - Display the list of available actions \n/reset - Reset your conversation with Brian Agent \n/help - Show this list of commands";
 export const BOT_COMMAND_START_REPLY =
-  "Great! You can start chatting with Brian Agent. Type /actions to see the list of actions you can perform.";
+  "Welcome! You can now start chatting with Brian Agent. Type /actions to see the available actions.";
 export const BOT_COMMAND_IDLE_REPLY =
-  "Hey there, I'm Brian Agent. Available commands:\n/start - Start chatting with Brian API\n/actions - Show this list of commands";
+"Hello! I'm Brian Agent. Here are the available commands:\n/start - Begin a conversation with Brian Agent\n/actions - Display the list of available actions\n/reset - Reset the conversation with Brian Agent\n/help - Show this list of commands";
+
+
+
+
+
+

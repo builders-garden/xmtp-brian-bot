@@ -71,6 +71,7 @@ run(async (context: HandlerContext) => {
           for (let i = 0; i < requestsLength; i++) {
             const resultData = data.result[i].data;
             const request: Request = {
+              action: resultData.action,
               description: resultData.description,
               chainId: resultData.steps[0].chainId,
               tokenIn: resultData.fromToken.address,

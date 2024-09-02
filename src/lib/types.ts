@@ -16,6 +16,7 @@ export interface BrianContextMessageType {
 
 export type Request = {
   description: string;
+  action: string;
   chainId: number;
   tokenIn: string;
   steps: {

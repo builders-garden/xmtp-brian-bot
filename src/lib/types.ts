@@ -19,6 +19,9 @@ export type Request = {
   action: string;
   chainId: number;
   tokenIn: string;
+  tokenAmount: string;
+  tokenDecimals: number;
+  tokenSymbol: string;
   steps: {
     from: string;
     to: string;

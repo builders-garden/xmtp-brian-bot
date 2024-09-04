@@ -97,6 +97,7 @@ run(async (context: HandlerContext) => {
           // Send description for each request to user
           for (let i = 0; i < requests.length; i++) {
             const description = requests[i].description;
+            await context.send("You have requested to perform the following transaction:");
             await context.send(description);
           }
           const conversationId = uuidv4();
@@ -112,6 +113,7 @@ run(async (context: HandlerContext) => {
 
           // Save the conversation in Redis to be used within the frame
           await redisClient.set(conversationId, JSON.stringify(frameData));
+          await context.send("You can now perform the transaction by clicking on the following Frame link:");
           await context.send(
             `${process.env.FRAME_URL}/frames/brian-tx?id=${conversationId}`
           );

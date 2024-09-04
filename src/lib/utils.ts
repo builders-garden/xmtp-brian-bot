@@ -102,6 +102,7 @@ const sensitivePatterns = [
   "welcome! you can now start chatting with brian agent",
   "Resources",
   "https://",
+  "You can now perform the transaction by clicking on the following Frame link:",
   "/start",
   "/help",
   "/reset",

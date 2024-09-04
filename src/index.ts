@@ -75,6 +75,9 @@ run(async (context: HandlerContext) => {
               description: resultData.description,
               chainId: resultData.steps[0].chainId,
               tokenIn: resultData.fromToken.address,
+              tokenAmount: resultData.fromAmount,
+              tokenDecimals: resultData.fromToken.decimals,
+              tokenSymbol: resultData.fromToken.symbol,
               steps: [],
               stepsLength: stepsLength[i],
             };

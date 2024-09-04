@@ -55,7 +55,8 @@ export const generateBrianPayload = async (
   const lastResetIndex = messages.findIndex(
     (message) =>
       typeof message.content === "string" &&
-      message.content.trim().toLowerCase() === "/reset"
+    (message.content.trim().toLowerCase() === "/reset" ||
+    message.content.trim().toLowerCase() === "/start")
   );
   const relevantMessages =
     lastResetIndex !== -1 ? messages.slice(0, lastResetIndex) : messages;

@@ -79,14 +79,16 @@ export const generateBrianPayload = async (
         : "brian" as const,
       content: message.content as string,
     }))
-    .slice(0, 10); // Take only the last 10 messages
+    .slice(0, 10).reverse(); // Take only the last 10 messages
+    console.log("Filtered messages: ", filteredMessages.slice(1));
+    console.log("Filtered messages: ", filteredMessages);
 
 
   // Create the brianPayload object
   const brianPayload: BrianPayloadType = {
-    prompt: filteredMessages[0]?.content || "", // Gets the first (most recent) message from the user
+    prompt: filteredMessages[filteredMessages.length - 1]?.content || "", // Gets the first (most recent) message from the user
     address: context.message.sender.address,
-    messages: filteredMessages.slice(1), // Include all messages except the first one
+    messages: filteredMessages.slice(0, -1), // Include all messages except the last one
   };
   console.log("Brian payload: ", brianPayload);
 

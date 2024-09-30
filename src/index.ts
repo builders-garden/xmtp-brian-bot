@@ -19,6 +19,8 @@ type CurrentStep = "idle" | "chatting";
 
 // Create the in-memory cache
 const inMemoryCacheStep = new Map<string, CurrentStep>();
+const inMemoryCacheHistory = new Map<string, any>();
+
 
 run(async (context: HandlerContext) => {
   // Get the message and the address from the sender
@@ -41,18 +43,30 @@ run(async (context: HandlerContext) => {
     // If the user is in the chatting step, generate a new conversation with Brian API
     else if (inMemoryCacheStep.get(sender.address) === "chatting") {
       console.log("Starting conversation with Brian API");
-      const brianPayload = await generateBrianPayload(context, 15);
+      const previousHistory = inMemoryCacheHistory.get(sender.address) || [];
+
+      const brianPayload = await generateBrianPayload(previousHistory, 15);
+      let conversationHistory: any;
 
       try {
         const response = await axios.post(brianAgentEndpoint, brianPayload, {
           headers: brianHeaders,
         });
         const data = response.data;
+
+        // get conversation history from Brian
+        conversationHistory = data.result[0].conversation_history;
+        console.log("Conversation history: ", conversationHistory);
+        inMemoryCacheHistory.set(sender.address, conversationHistory);
+
+
+
+
         console.log("Data: ", data);
         //Ask request
-        if (data.result && data.result.answer) {
+        if (data.result[0].type === "knowledge") {
           console.log("Answer found");
-          await context.send(data.result.answer);
+          await context.send(data.result[0].answer);
         }
         //Tx request
         if (data.result[0].type === "write") {
@@ -126,6 +140,10 @@ run(async (context: HandlerContext) => {
       } catch (error: any) {
         console.log("Status: ", error.response.status);
         console.log("Data: ", error.response.data);
+        conversationHistory = error.response.conversation_history;
+        console.log("Conversation history: ", conversationHistory);
+        inMemoryCacheHistory.set(sender.address, conversationHistory);
+
         await context.send(error.response.data.error);
       }
     }

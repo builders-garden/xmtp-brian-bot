@@ -50,9 +50,9 @@ run(async (context: HandlerContext) => {
         const data = response.data;
         console.log("Data: ", data);
         //Ask request
-        if (data.result && data.result.answer) {
+        if (data.result[0].type === "knowledge" && data.result[0].answer) {
           console.log("Answer found");
-          await context.send(data.result.answer);
+          await context.send(data.result[0].answer);
         }
         //Tx request
         if (data.result[0].type === "write") {

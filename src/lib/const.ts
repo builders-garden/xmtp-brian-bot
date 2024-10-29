@@ -1,7 +1,7 @@
 // Brian Agent API endpoint
 
 export const brianAgentEndpoint =
-  "https://staging-api.brianknows.org/api/v0/agent";
+  "https://api.brianknows.org/api/v0/agent";
 
 //export const brianAgentEndpoint = "http://localhost:8080/api/v0/agent";
 
